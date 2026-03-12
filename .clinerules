@@ -1,0 +1,90 @@
+# SolarEdge MQTT Bridge — Project Context for AI Agents
+
+## What this project does
+
+This is a Python service that bridges a **SolarEdge solar inverter** to an **MQTT broker**. It continuously polls the inverter via **Modbus TCP** and publishes each metric as an individual **retained MQTT topic**.
+
+## Architecture overview
+
+```
+┌──────────────┐   Modbus TCP    ┌──────────┐    MQTT     ┌─────────────┐
+│   SolarEdge  │ ◄────────────── │ main.py  │ ──────────► │ MQTT Broker │
+│   Inverter   │   (poll every   │ (bridge) │  (publish   │             │
+│  (10.2.0.11) │    10s)         │          │  per-metric)│ (10.2.0.29) │
+└──────────────┘                 └──────────┘             └─────────────┘
+```
+
+## Key files
+
+| File | Purpose |
+|---|---|
+| `main.py` | Single-file application. Contains all logic: config loading, MQTT client, Modbus reader, and the main polling loop. |
+| `config.yaml` | Runtime configuration (gitignored — contains secrets). Copied from `config.example.yaml`. |
+| `config.example.yaml` | Template configuration with default values and structure. |
+| `requirements.txt` | Python dependencies with pinned version ranges. |
+| `README.md` | User-facing documentation with setup, config, and service deployment instructions. |
+| `.gitignore` | Excludes `env/`, `__pycache__/`, `config.yaml`. |
+
+## Technology stack
+
+- **Python 3** (developed/tested on 3.14)
+- **solaredge_modbus** (0.8.0) — SolarEdge-specific Modbus register reader ([GitHub](https://github.com/nmakel/solaredge_modbus))
+- **pymodbus** (pinned to >=3.5,<3.7) — underlying Modbus protocol library. Version constraint exists because solaredge_modbus 0.8.0 imports `Endian` from `pymodbus.constants` which was removed in pymodbus >=3.7.
+- **paho-mqtt** (1.x) — MQTT client library
+- **PyYAML** — configuration parsing
+
+## Important compatibility note
+
+The `solaredge_modbus` library has a **pymodbus version sensitivity**. The `Endian` import from `pymodbus.constants` was removed in pymodbus 3.7+. If upgrading dependencies, verify this import still works. If `solaredge_modbus` releases a new version that fixes this, the pymodbus pin in `requirements.txt` can be relaxed.
+
+## Configuration structure
+
+All configuration lives in `config.yaml` (YAML format):
+
+- `modbus.host` / `modbus.port` / `modbus.unit` / `modbus.timeout` — Inverter connection settings
+- `mqtt.host` / `mqtt.port` / `mqtt.username` / `mqtt.password` — MQTT broker connection
+- `mqtt.base_topic` — Base path for all published topics (default: `solaredge/inverter`)
+- `mqtt.client_id` — MQTT client identifier
+- `poll_interval_seconds` — How often to read the inverter (default: 10)
+
+## MQTT topic structure
+
+Each inverter register value is published to its own topic under `{base_topic}/{metric_name}`. Examples:
+
+- `solaredge/inverter/power_ac` — AC power output (raw register value)
+- `solaredge/inverter/power_ac_scale` — Scale factor for power_ac
+- `solaredge/inverter/temperature` — Inverter temperature
+- `solaredge/inverter/energy_total` — Lifetime energy production
+- `solaredge/inverter/_timestamp` — ISO 8601 timestamp of the reading
+
+All values are published with the **retain** flag. Nested structures (meters, batteries) are flattened into sub-topic paths.
+
+**Note:** The values published are **raw register values** with separate scale factors (e.g. `power_ac=15574` with `power_ac_scale=-1` means 1557.4 W). Consumers must apply scaling themselves.
+
+## Runtime behavior
+
+1. Loads config from `config.yaml` (override path with `-c`)
+2. Connects to MQTT broker (auto-reconnect on disconnect)
+3. Enters polling loop:
+   - Creates a new Modbus TCP connection each poll
+   - Reads all inverter registers via `inverter.read_all()`
+   - Publishes ~56 metrics to individual MQTT topics
+   - Sleeps until next interval
+4. On errors: exponential backoff (2^n seconds, max 60s)
+5. Graceful shutdown on SIGINT/SIGTERM
+
+## How to run
+
+```bash
+source env/bin/activate
+python main.py          # normal mode
+python main.py -v       # debug/verbose mode
+python main.py -c /path/to/other/config.yaml
+```
+
+## Common modification scenarios
+
+- **Add meter/battery support**: The `solaredge_modbus` library supports meters and batteries. Extend `read_inverter()` to call `inverter.meters()` / `inverter.batteries()` and read their registers. The `publish_values()` function already handles nested dicts.
+- **Change to JSON payload**: Modify `publish_values()` to publish a single JSON object to `base_topic` instead of individual topics.
+- **Add Home Assistant discovery**: Publish MQTT discovery messages to `homeassistant/sensor/solaredge_*/config` with appropriate device classes.
+- **Apply scale factors**: Create a post-processing step that multiplies raw values by their corresponding `*_scale` factors before publishing.

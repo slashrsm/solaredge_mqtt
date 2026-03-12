@@ -1,0 +1,15 @@
+modbus:
+  host: 10.0.0.10
+  port: 1502
+  unit: 1
+  timeout: 5
+
+mqtt:
+  host: 10.0.0.11
+  port: 1883
+  username: admin
+  password: "somepassword"
+  base_topic: solaredge/inverter
+  client_id: solaredge_mqtt
+
+poll_interval_seconds: 10
