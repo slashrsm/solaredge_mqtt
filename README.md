@@ -69,6 +69,27 @@ usage: main.py [-h] [-c CONFIG] [-v]
   -v, --verbose         Enable debug logging
 ```
 
+## Running with Docker
+
+```bash
+# Build the image
+docker build -t solaredge-mqtt .
+
+# Run (mount your config file)
+docker run -d --name solaredge-mqtt \
+  -v ./config.yaml:/app/config.yaml \
+  solaredge-mqtt
+
+# Run in debug mode (verbose logging)
+docker run -d --name solaredge-mqtt \
+  -e DEBUG=1 \
+  -v ./config.yaml:/app/config.yaml \
+  solaredge-mqtt
+
+# View logs
+docker logs -f solaredge-mqtt
+```
+
 ## Running as a service
 
 Create a systemd unit (Linux) or launchd plist (macOS) to keep the bridge

@@ -1,0 +1,8 @@
+env/
+__pycache__/
+*.pyc
+config.yaml
+.git/
+.gitignore
+.clinerules
+README.md

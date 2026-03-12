@@ -23,6 +23,9 @@ This is a Python service that bridges a **SolarEdge solar inverter** to an **MQT
 | `config.example.yaml` | Template configuration with default values and structure. |
 | `requirements.txt` | Python dependencies with pinned version ranges. |
 | `README.md` | User-facing documentation with setup, config, and service deployment instructions. |
+| `Dockerfile` | Docker image build file. Uses `python:3.12-slim`. Supports `DEBUG=1` env var for verbose logging. |
+| `entrypoint.sh` | Docker entrypoint script that checks `DEBUG` env var and runs `main.py` accordingly. |
+| `.dockerignore` | Excludes unnecessary files from Docker build context. |
 | `.gitignore` | Excludes `env/`, `__pycache__/`, `config.yaml`. |
 
 ## Technology stack
