@@ -47,15 +47,19 @@ poll_interval_seconds: 10   # How often to poll the inverter
 ## MQTT topics
 
 Each inverter metric is published to its own topic under the configured
-`base_topic`. For example:
+`base_topic`. Scale factors are automatically applied before publishing,
+so all numeric values are in real-world units (watts, volts, amps, etc.).
+Scale factor topics (e.g. `*_scale`) are not published. For example:
 
-| Topic | Example value |
-|---|---|
-| `solaredge/inverter/power_ac` | `15574` |
-| `solaredge/inverter/power_ac_scale` | `-1` |
-| `solaredge/inverter/temperature` | `3501` |
-| `solaredge/inverter/energy_total` | `18580756` |
-| `solaredge/inverter/_timestamp` | `2026-12-03T11:30:00+0100` |
+| Topic | Example value | Unit |
+|---|---|---|
+| `solaredge/inverter/power_ac` | `1557.4` | W |
+| `solaredge/inverter/temperature` | `35.01` | °C |
+| `solaredge/inverter/energy_total` | `1858075.6` | Wh |
+| `solaredge/inverter/l1n_voltage` | `230.5` | V |
+| `solaredge/inverter/current` | `6.77` | A |
+| `solaredge/inverter/frequency` | `50.01` | Hz |
+| `solaredge/inverter/_timestamp` | `2026-12-03T11:30:00+0100` | — |
 
 All messages are published with the **retain** flag so the last known value
 is always available to new subscribers.
@@ -95,10 +99,9 @@ docker logs -f solaredge-mqtt
 An example Home Assistant configuration is provided in
 [`homeassistant.example.yaml`](homeassistant.example.yaml). It includes:
 
-- **Raw MQTT sensors** for every inverter register (current, voltage, power,
-  energy, temperature, status, power control, export control, etc.)
-- **Template sensors** that automatically apply scale factors to produce
-  real-world values (e.g. `power_ac × 10^power_ac_scale` → watts)
+- **MQTT sensors** for every inverter metric with proper `device_class`,
+  `unit_of_measurement`, and `state_class` (values are pre-scaled by the
+  bridge, so no template math is needed)
 - Human-readable `value_template` mappings for status and configuration
   registers
 - All sensors grouped under a single **SolarEdge Inverter** device in HA

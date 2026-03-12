@@ -105,6 +105,54 @@ def publish_values(client: mqtt.Client, base_topic: str, values: dict, prefix: s
 
 
 # ---------------------------------------------------------------------------
+# Scaling
+# ---------------------------------------------------------------------------
+
+# Maps each scale factor key to the list of value keys it applies to.
+SCALE_FACTOR_MAP = {
+    "current_scale": ["current", "l1_current", "l2_current", "l3_current"],
+    "voltage_scale": [
+        "l1_voltage", "l2_voltage", "l3_voltage",
+        "l1n_voltage", "l2n_voltage", "l3n_voltage",
+    ],
+    "power_ac_scale": ["power_ac"],
+    "frequency_scale": ["frequency"],
+    "power_apparent_scale": ["power_apparent"],
+    "power_reactive_scale": ["power_reactive"],
+    "power_factor_scale": ["power_factor"],
+    "energy_total_scale": ["energy_total"],
+    "current_dc_scale": ["current_dc"],
+    "voltage_dc_scale": ["voltage_dc"],
+    "power_dc_scale": ["power_dc"],
+    "temperature_scale": ["temperature"],
+}
+
+
+def apply_scale_factors(values: dict) -> dict:
+    """Apply SunSpec scale factors to raw register values.
+
+    Each scaled value is computed as: real_value = raw_value × 10^(scale_factor)
+    Scale factor keys are removed from the returned dict.
+    """
+    scaled = dict(values)
+
+    for scale_key, value_keys in SCALE_FACTOR_MAP.items():
+        if scale_key not in scaled:
+            continue
+        scale = scaled[scale_key]
+        if not isinstance(scale, (int, float)) or scale == 0x8000:
+            # Scale factor not implemented / invalid – skip
+            continue
+        factor = 10 ** scale
+        for vk in value_keys:
+            if vk in scaled and isinstance(scaled[vk], (int, float)):
+                scaled[vk] = round(scaled[vk] * factor, 6)
+        del scaled[scale_key]
+
+    return scaled
+
+
+# ---------------------------------------------------------------------------
 # Modbus
 # ---------------------------------------------------------------------------
 
@@ -173,6 +221,9 @@ def main():
             log.debug("Polling inverter …")
             values = read_inverter(cfg["modbus"])
             consecutive_errors = 0
+
+            # Apply scale factors so published values are in real-world units
+            values = apply_scale_factors(values)
 
             # Add a timestamp
             values["_timestamp"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")

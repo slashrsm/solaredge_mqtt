@@ -9,16 +9,8 @@
 # Copy this file to your HA config directory (e.g. as "solaredge.yaml")
 # and add the lines above to your configuration.yaml, then restart HA.
 #
-# IMPORTANT: Values published by this bridge are RAW register values.
-# Scale factors are published as separate topics. To get real-world values,
-# you must apply scaling: real_value = raw_value * 10^(scale_factor)
-#
-# For example:
-#   power_ac = 15574, power_ac_scale = -1 → 15574 * 10^(-1) = 1557.4 W
-#
-# This file includes:
-#   1. Raw MQTT sensors for all published inverter topics
-#   2. Template sensors (at the bottom) that apply scale factors automatically
+# Values are pre-scaled by the bridge (scale factors are applied before
+# publishing), so all numeric values are in real-world units.
 #
 # Adjust "solaredge/inverter" if you changed mqtt.base_topic in config.yaml.
 
@@ -96,275 +88,231 @@ mqtt:
       device: *solaredge_device
 
     # =====================================================================
-    # Inverter — AC Current (raw)
+    # Inverter — AC Current
     # =====================================================================
 
-    - unique_id: solaredge_current_raw
-      name: "SolarEdge AC Current (raw)"
+    - unique_id: solaredge_current
+      name: "SolarEdge AC Current"
       state_topic: "solaredge/inverter/current"
+      device_class: current
+      unit_of_measurement: "A"
       state_class: measurement
       icon: mdi:current-ac
       device: *solaredge_device
 
-    - unique_id: solaredge_l1_current_raw
-      name: "SolarEdge L1 Current (raw)"
+    - unique_id: solaredge_l1_current
+      name: "SolarEdge L1 Current"
       state_topic: "solaredge/inverter/l1_current"
+      device_class: current
+      unit_of_measurement: "A"
       state_class: measurement
       icon: mdi:current-ac
       device: *solaredge_device
 
-    - unique_id: solaredge_l2_current_raw
-      name: "SolarEdge L2 Current (raw)"
+    - unique_id: solaredge_l2_current
+      name: "SolarEdge L2 Current"
       state_topic: "solaredge/inverter/l2_current"
+      device_class: current
+      unit_of_measurement: "A"
       state_class: measurement
       icon: mdi:current-ac
       device: *solaredge_device
 
-    - unique_id: solaredge_l3_current_raw
-      name: "SolarEdge L3 Current (raw)"
+    - unique_id: solaredge_l3_current
+      name: "SolarEdge L3 Current"
       state_topic: "solaredge/inverter/l3_current"
+      device_class: current
+      unit_of_measurement: "A"
       state_class: measurement
       icon: mdi:current-ac
       device: *solaredge_device
 
-    - unique_id: solaredge_current_scale
-      name: "SolarEdge Current Scale Factor"
-      state_topic: "solaredge/inverter/current_scale"
-      icon: mdi:exponent
-      entity_category: diagnostic
-      device: *solaredge_device
-
     # =====================================================================
-    # Inverter — AC Voltage (raw)
+    # Inverter — AC Voltage
     # =====================================================================
 
-    - unique_id: solaredge_l1_voltage_raw
-      name: "SolarEdge L1 Voltage (raw)"
+    - unique_id: solaredge_l1_voltage
+      name: "SolarEdge L1 Voltage"
       state_topic: "solaredge/inverter/l1_voltage"
+      device_class: voltage
+      unit_of_measurement: "V"
       state_class: measurement
       icon: mdi:sine-wave
       device: *solaredge_device
 
-    - unique_id: solaredge_l2_voltage_raw
-      name: "SolarEdge L2 Voltage (raw)"
+    - unique_id: solaredge_l2_voltage
+      name: "SolarEdge L2 Voltage"
       state_topic: "solaredge/inverter/l2_voltage"
+      device_class: voltage
+      unit_of_measurement: "V"
       state_class: measurement
       icon: mdi:sine-wave
       device: *solaredge_device
 
-    - unique_id: solaredge_l3_voltage_raw
-      name: "SolarEdge L3 Voltage (raw)"
+    - unique_id: solaredge_l3_voltage
+      name: "SolarEdge L3 Voltage"
       state_topic: "solaredge/inverter/l3_voltage"
+      device_class: voltage
+      unit_of_measurement: "V"
       state_class: measurement
       icon: mdi:sine-wave
       device: *solaredge_device
 
-    - unique_id: solaredge_l1n_voltage_raw
-      name: "SolarEdge L1-N Voltage (raw)"
+    - unique_id: solaredge_l1n_voltage
+      name: "SolarEdge L1-N Voltage"
       state_topic: "solaredge/inverter/l1n_voltage"
+      device_class: voltage
+      unit_of_measurement: "V"
       state_class: measurement
       icon: mdi:sine-wave
       device: *solaredge_device
 
-    - unique_id: solaredge_l2n_voltage_raw
-      name: "SolarEdge L2-N Voltage (raw)"
+    - unique_id: solaredge_l2n_voltage
+      name: "SolarEdge L2-N Voltage"
       state_topic: "solaredge/inverter/l2n_voltage"
+      device_class: voltage
+      unit_of_measurement: "V"
       state_class: measurement
       icon: mdi:sine-wave
       device: *solaredge_device
 
-    - unique_id: solaredge_l3n_voltage_raw
-      name: "SolarEdge L3-N Voltage (raw)"
+    - unique_id: solaredge_l3n_voltage
+      name: "SolarEdge L3-N Voltage"
       state_topic: "solaredge/inverter/l3n_voltage"
+      device_class: voltage
+      unit_of_measurement: "V"
       state_class: measurement
       icon: mdi:sine-wave
       device: *solaredge_device
 
-    - unique_id: solaredge_voltage_scale
-      name: "SolarEdge Voltage Scale Factor"
-      state_topic: "solaredge/inverter/voltage_scale"
-      icon: mdi:exponent
-      entity_category: diagnostic
-      device: *solaredge_device
-
     # =====================================================================
-    # Inverter — AC Power (raw)
+    # Inverter — AC Power
     # =====================================================================
 
-    - unique_id: solaredge_power_ac_raw
-      name: "SolarEdge AC Power (raw)"
+    - unique_id: solaredge_power_ac
+      name: "SolarEdge AC Power"
       state_topic: "solaredge/inverter/power_ac"
+      device_class: power
+      unit_of_measurement: "W"
       state_class: measurement
       icon: mdi:solar-power
       device: *solaredge_device
 
-    - unique_id: solaredge_power_ac_scale
-      name: "SolarEdge AC Power Scale Factor"
-      state_topic: "solaredge/inverter/power_ac_scale"
-      icon: mdi:exponent
-      entity_category: diagnostic
-      device: *solaredge_device
-
     # =====================================================================
-    # Inverter — Frequency (raw)
+    # Inverter — Frequency
     # =====================================================================
 
-    - unique_id: solaredge_frequency_raw
-      name: "SolarEdge Frequency (raw)"
+    - unique_id: solaredge_frequency
+      name: "SolarEdge Frequency"
       state_topic: "solaredge/inverter/frequency"
+      device_class: frequency
+      unit_of_measurement: "Hz"
       state_class: measurement
       icon: mdi:waveform
       device: *solaredge_device
 
-    - unique_id: solaredge_frequency_scale
-      name: "SolarEdge Frequency Scale Factor"
-      state_topic: "solaredge/inverter/frequency_scale"
-      icon: mdi:exponent
-      entity_category: diagnostic
-      device: *solaredge_device
-
     # =====================================================================
-    # Inverter — Apparent Power (raw)
+    # Inverter — Apparent Power
     # =====================================================================
 
-    - unique_id: solaredge_power_apparent_raw
-      name: "SolarEdge Apparent Power (raw)"
+    - unique_id: solaredge_power_apparent
+      name: "SolarEdge Apparent Power"
       state_topic: "solaredge/inverter/power_apparent"
+      device_class: apparent_power
+      unit_of_measurement: "VA"
       state_class: measurement
       icon: mdi:flash-outline
       device: *solaredge_device
 
-    - unique_id: solaredge_power_apparent_scale
-      name: "SolarEdge Apparent Power Scale Factor"
-      state_topic: "solaredge/inverter/power_apparent_scale"
-      icon: mdi:exponent
-      entity_category: diagnostic
-      device: *solaredge_device
-
     # =====================================================================
-    # Inverter — Reactive Power (raw)
+    # Inverter — Reactive Power
     # =====================================================================
 
-    - unique_id: solaredge_power_reactive_raw
-      name: "SolarEdge Reactive Power (raw)"
+    - unique_id: solaredge_power_reactive
+      name: "SolarEdge Reactive Power"
       state_topic: "solaredge/inverter/power_reactive"
+      device_class: reactive_power
+      unit_of_measurement: "var"
       state_class: measurement
       icon: mdi:flash-outline
       device: *solaredge_device
 
-    - unique_id: solaredge_power_reactive_scale
-      name: "SolarEdge Reactive Power Scale Factor"
-      state_topic: "solaredge/inverter/power_reactive_scale"
-      icon: mdi:exponent
-      entity_category: diagnostic
-      device: *solaredge_device
-
     # =====================================================================
-    # Inverter — Power Factor (raw)
+    # Inverter — Power Factor
     # =====================================================================
 
-    - unique_id: solaredge_power_factor_raw
-      name: "SolarEdge Power Factor (raw)"
+    - unique_id: solaredge_power_factor
+      name: "SolarEdge Power Factor"
       state_topic: "solaredge/inverter/power_factor"
+      device_class: power_factor
+      unit_of_measurement: "%"
       state_class: measurement
       icon: mdi:angle-acute
       device: *solaredge_device
 
-    - unique_id: solaredge_power_factor_scale
-      name: "SolarEdge Power Factor Scale Factor"
-      state_topic: "solaredge/inverter/power_factor_scale"
-      icon: mdi:exponent
-      entity_category: diagnostic
-      device: *solaredge_device
-
     # =====================================================================
-    # Inverter — Total Energy (raw)
+    # Inverter — Total Energy
     # =====================================================================
 
-    - unique_id: solaredge_energy_total_raw
-      name: "SolarEdge Total Energy (raw)"
+    - unique_id: solaredge_energy_total
+      name: "SolarEdge Total Energy"
       state_topic: "solaredge/inverter/energy_total"
+      device_class: energy
+      unit_of_measurement: "Wh"
       state_class: total_increasing
       icon: mdi:solar-power-variant
       device: *solaredge_device
 
-    - unique_id: solaredge_energy_total_scale
-      name: "SolarEdge Total Energy Scale Factor"
-      state_topic: "solaredge/inverter/energy_total_scale"
-      icon: mdi:exponent
-      entity_category: diagnostic
-      device: *solaredge_device
-
     # =====================================================================
-    # Inverter — DC Current (raw)
+    # Inverter — DC Current
     # =====================================================================
 
-    - unique_id: solaredge_current_dc_raw
-      name: "SolarEdge DC Current (raw)"
+    - unique_id: solaredge_current_dc
+      name: "SolarEdge DC Current"
       state_topic: "solaredge/inverter/current_dc"
+      device_class: current
+      unit_of_measurement: "A"
       state_class: measurement
       icon: mdi:current-dc
       device: *solaredge_device
 
-    - unique_id: solaredge_current_dc_scale
-      name: "SolarEdge DC Current Scale Factor"
-      state_topic: "solaredge/inverter/current_dc_scale"
-      icon: mdi:exponent
-      entity_category: diagnostic
-      device: *solaredge_device
-
     # =====================================================================
-    # Inverter — DC Voltage (raw)
+    # Inverter — DC Voltage
     # =====================================================================
 
-    - unique_id: solaredge_voltage_dc_raw
-      name: "SolarEdge DC Voltage (raw)"
+    - unique_id: solaredge_voltage_dc
+      name: "SolarEdge DC Voltage"
       state_topic: "solaredge/inverter/voltage_dc"
+      device_class: voltage
+      unit_of_measurement: "V"
       state_class: measurement
       icon: mdi:sine-wave
       device: *solaredge_device
 
-    - unique_id: solaredge_voltage_dc_scale
-      name: "SolarEdge DC Voltage Scale Factor"
-      state_topic: "solaredge/inverter/voltage_dc_scale"
-      icon: mdi:exponent
-      entity_category: diagnostic
-      device: *solaredge_device
-
     # =====================================================================
-    # Inverter — DC Power (raw)
+    # Inverter — DC Power
     # =====================================================================
 
-    - unique_id: solaredge_power_dc_raw
-      name: "SolarEdge DC Power (raw)"
+    - unique_id: solaredge_power_dc
+      name: "SolarEdge DC Power"
       state_topic: "solaredge/inverter/power_dc"
+      device_class: power
+      unit_of_measurement: "W"
       state_class: measurement
       icon: mdi:solar-panel-large
       device: *solaredge_device
 
-    - unique_id: solaredge_power_dc_scale
-      name: "SolarEdge DC Power Scale Factor"
-      state_topic: "solaredge/inverter/power_dc_scale"
-      icon: mdi:exponent
-      entity_category: diagnostic
-      device: *solaredge_device
-
     # =====================================================================
-    # Inverter — Temperature (raw)
+    # Inverter — Temperature
     # =====================================================================
 
-    - unique_id: solaredge_temperature_raw
-      name: "SolarEdge Temperature (raw)"
+    - unique_id: solaredge_temperature
+      name: "SolarEdge Inverter Temperature"
       state_topic: "solaredge/inverter/temperature"
+      device_class: temperature
+      unit_of_measurement: "°C"
       state_class: measurement
       icon: mdi:thermometer
-      device: *solaredge_device
-
-    - unique_id: solaredge_temperature_scale
-      name: "SolarEdge Temperature Scale Factor"
-      state_topic: "solaredge/inverter/temperature_scale"
-      icon: mdi:exponent
-      entity_category: diagnostic
       device: *solaredge_device
 
     # =====================================================================
@@ -510,342 +458,3 @@ mqtt:
       device_class: timestamp
       icon: mdi:clock-outline
       device: *solaredge_device
-
-
-# =========================================================================
-# Template sensors — Apply scale factors to get real-world values
-# =========================================================================
-# These template sensors combine raw values with their scale factors.
-# They depend on the MQTT sensors defined above.
-
-template:
-
-  - sensor:
-
-      # -------------------------------------------------------------------
-      # AC Current (scaled)
-      # -------------------------------------------------------------------
-
-      - unique_id: solaredge_current
-        name: "SolarEdge AC Current"
-        unit_of_measurement: "A"
-        device_class: current
-        state_class: measurement
-        icon: mdi:current-ac
-        state: >
-          {% set raw = states('sensor.solaredge_ac_current_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_current_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(2) }}
-        availability: >
-          {{ states('sensor.solaredge_ac_current_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_current_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      - unique_id: solaredge_l1_current
-        name: "SolarEdge L1 Current"
-        unit_of_measurement: "A"
-        device_class: current
-        state_class: measurement
-        icon: mdi:current-ac
-        state: >
-          {% set raw = states('sensor.solaredge_l1_current_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_current_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(2) }}
-        availability: >
-          {{ states('sensor.solaredge_l1_current_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_current_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      - unique_id: solaredge_l2_current
-        name: "SolarEdge L2 Current"
-        unit_of_measurement: "A"
-        device_class: current
-        state_class: measurement
-        icon: mdi:current-ac
-        state: >
-          {% set raw = states('sensor.solaredge_l2_current_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_current_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(2) }}
-        availability: >
-          {{ states('sensor.solaredge_l2_current_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_current_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      - unique_id: solaredge_l3_current
-        name: "SolarEdge L3 Current"
-        unit_of_measurement: "A"
-        device_class: current
-        state_class: measurement
-        icon: mdi:current-ac
-        state: >
-          {% set raw = states('sensor.solaredge_l3_current_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_current_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(2) }}
-        availability: >
-          {{ states('sensor.solaredge_l3_current_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_current_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      # -------------------------------------------------------------------
-      # AC Voltage (scaled)
-      # -------------------------------------------------------------------
-
-      - unique_id: solaredge_l1_voltage
-        name: "SolarEdge L1 Voltage"
-        unit_of_measurement: "V"
-        device_class: voltage
-        state_class: measurement
-        icon: mdi:sine-wave
-        state: >
-          {% set raw = states('sensor.solaredge_l1_voltage_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_voltage_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(1) }}
-        availability: >
-          {{ states('sensor.solaredge_l1_voltage_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_voltage_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      - unique_id: solaredge_l2_voltage
-        name: "SolarEdge L2 Voltage"
-        unit_of_measurement: "V"
-        device_class: voltage
-        state_class: measurement
-        icon: mdi:sine-wave
-        state: >
-          {% set raw = states('sensor.solaredge_l2_voltage_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_voltage_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(1) }}
-        availability: >
-          {{ states('sensor.solaredge_l2_voltage_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_voltage_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      - unique_id: solaredge_l3_voltage
-        name: "SolarEdge L3 Voltage"
-        unit_of_measurement: "V"
-        device_class: voltage
-        state_class: measurement
-        icon: mdi:sine-wave
-        state: >
-          {% set raw = states('sensor.solaredge_l3_voltage_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_voltage_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(1) }}
-        availability: >
-          {{ states('sensor.solaredge_l3_voltage_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_voltage_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      - unique_id: solaredge_l1n_voltage
-        name: "SolarEdge L1-N Voltage"
-        unit_of_measurement: "V"
-        device_class: voltage
-        state_class: measurement
-        icon: mdi:sine-wave
-        state: >
-          {% set raw = states('sensor.solaredge_l1_n_voltage_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_voltage_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(1) }}
-        availability: >
-          {{ states('sensor.solaredge_l1_n_voltage_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_voltage_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      - unique_id: solaredge_l2n_voltage
-        name: "SolarEdge L2-N Voltage"
-        unit_of_measurement: "V"
-        device_class: voltage
-        state_class: measurement
-        icon: mdi:sine-wave
-        state: >
-          {% set raw = states('sensor.solaredge_l2_n_voltage_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_voltage_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(1) }}
-        availability: >
-          {{ states('sensor.solaredge_l2_n_voltage_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_voltage_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      - unique_id: solaredge_l3n_voltage
-        name: "SolarEdge L3-N Voltage"
-        unit_of_measurement: "V"
-        device_class: voltage
-        state_class: measurement
-        icon: mdi:sine-wave
-        state: >
-          {% set raw = states('sensor.solaredge_l3_n_voltage_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_voltage_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(1) }}
-        availability: >
-          {{ states('sensor.solaredge_l3_n_voltage_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_voltage_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      # -------------------------------------------------------------------
-      # AC Power (scaled)
-      # -------------------------------------------------------------------
-
-      - unique_id: solaredge_power_ac
-        name: "SolarEdge AC Power"
-        unit_of_measurement: "W"
-        device_class: power
-        state_class: measurement
-        icon: mdi:solar-power
-        state: >
-          {% set raw = states('sensor.solaredge_ac_power_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_ac_power_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(1) }}
-        availability: >
-          {{ states('sensor.solaredge_ac_power_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_ac_power_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      # -------------------------------------------------------------------
-      # Frequency (scaled)
-      # -------------------------------------------------------------------
-
-      - unique_id: solaredge_frequency
-        name: "SolarEdge Frequency"
-        unit_of_measurement: "Hz"
-        device_class: frequency
-        state_class: measurement
-        icon: mdi:waveform
-        state: >
-          {% set raw = states('sensor.solaredge_frequency_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_frequency_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(2) }}
-        availability: >
-          {{ states('sensor.solaredge_frequency_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_frequency_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      # -------------------------------------------------------------------
-      # Apparent Power (scaled)
-      # -------------------------------------------------------------------
-
-      - unique_id: solaredge_power_apparent
-        name: "SolarEdge Apparent Power"
-        unit_of_measurement: "VA"
-        device_class: apparent_power
-        state_class: measurement
-        icon: mdi:flash-outline
-        state: >
-          {% set raw = states('sensor.solaredge_apparent_power_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_apparent_power_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(1) }}
-        availability: >
-          {{ states('sensor.solaredge_apparent_power_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_apparent_power_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      # -------------------------------------------------------------------
-      # Reactive Power (scaled)
-      # -------------------------------------------------------------------
-
-      - unique_id: solaredge_power_reactive
-        name: "SolarEdge Reactive Power"
-        unit_of_measurement: "VAr"
-        device_class: reactive_power
-        state_class: measurement
-        icon: mdi:flash-outline
-        state: >
-          {% set raw = states('sensor.solaredge_reactive_power_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_reactive_power_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(1) }}
-        availability: >
-          {{ states('sensor.solaredge_reactive_power_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_reactive_power_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      # -------------------------------------------------------------------
-      # Power Factor (scaled)
-      # -------------------------------------------------------------------
-
-      - unique_id: solaredge_power_factor
-        name: "SolarEdge Power Factor"
-        unit_of_measurement: "%"
-        device_class: power_factor
-        state_class: measurement
-        icon: mdi:angle-acute
-        state: >
-          {% set raw = states('sensor.solaredge_power_factor_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_power_factor_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(2) }}
-        availability: >
-          {{ states('sensor.solaredge_power_factor_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_power_factor_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      # -------------------------------------------------------------------
-      # Total Energy (scaled)
-      # -------------------------------------------------------------------
-
-      - unique_id: solaredge_energy_total
-        name: "SolarEdge Total Energy"
-        unit_of_measurement: "Wh"
-        device_class: energy
-        state_class: total_increasing
-        icon: mdi:solar-power-variant
-        state: >
-          {% set raw = states('sensor.solaredge_total_energy_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_total_energy_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(0) }}
-        availability: >
-          {{ states('sensor.solaredge_total_energy_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_total_energy_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      # -------------------------------------------------------------------
-      # DC Current (scaled)
-      # -------------------------------------------------------------------
-
-      - unique_id: solaredge_current_dc
-        name: "SolarEdge DC Current"
-        unit_of_measurement: "A"
-        device_class: current
-        state_class: measurement
-        icon: mdi:current-dc
-        state: >
-          {% set raw = states('sensor.solaredge_dc_current_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_dc_current_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(2) }}
-        availability: >
-          {{ states('sensor.solaredge_dc_current_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_dc_current_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      # -------------------------------------------------------------------
-      # DC Voltage (scaled)
-      # -------------------------------------------------------------------
-
-      - unique_id: solaredge_voltage_dc
-        name: "SolarEdge DC Voltage"
-        unit_of_measurement: "V"
-        device_class: voltage
-        state_class: measurement
-        icon: mdi:sine-wave
-        state: >
-          {% set raw = states('sensor.solaredge_dc_voltage_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_dc_voltage_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(1) }}
-        availability: >
-          {{ states('sensor.solaredge_dc_voltage_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_dc_voltage_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      # -------------------------------------------------------------------
-      # DC Power (scaled)
-      # -------------------------------------------------------------------
-
-      - unique_id: solaredge_power_dc
-        name: "SolarEdge DC Power"
-        unit_of_measurement: "W"
-        device_class: power
-        state_class: measurement
-        icon: mdi:solar-panel-large
-        state: >
-          {% set raw = states('sensor.solaredge_dc_power_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_dc_power_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(1) }}
-        availability: >
-          {{ states('sensor.solaredge_dc_power_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_dc_power_scale_factor') not in ['unknown', 'unavailable'] }}
-
-      # -------------------------------------------------------------------
-      # Temperature (scaled)
-      # -------------------------------------------------------------------
-
-      - unique_id: solaredge_temperature
-        name: "SolarEdge Inverter Temperature"
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        icon: mdi:thermometer
-        state: >
-          {% set raw = states('sensor.solaredge_temperature_raw') | float(0) %}
-          {% set scale = states('sensor.solaredge_temperature_scale_factor') | int(0) %}
-          {{ (raw * 10**(scale)) | round(1) }}
-        availability: >
-          {{ states('sensor.solaredge_temperature_raw') not in ['unknown', 'unavailable']
-             and states('sensor.solaredge_temperature_scale_factor') not in ['unknown', 'unavailable'] }}

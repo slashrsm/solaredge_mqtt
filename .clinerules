@@ -18,11 +18,12 @@ This is a Python service that bridges a **SolarEdge solar inverter** to an **MQT
 
 | File | Purpose |
 |---|---|
-| `main.py` | Single-file application. Contains all logic: config loading, MQTT client, Modbus reader, and the main polling loop. |
+| `main.py` | Single-file application. Contains all logic: config loading, MQTT client, Modbus reader, scale factor application, and the main polling loop. |
 | `config.yaml` | Runtime configuration (gitignored — contains secrets). Copied from `config.example.yaml`. |
 | `config.example.yaml` | Template configuration with default values and structure. |
 | `requirements.txt` | Python dependencies with pinned version ranges. |
 | `README.md` | User-facing documentation with setup, config, and service deployment instructions. |
+| `homeassistant.example.yaml` | Example Home Assistant package configuration with MQTT sensor entities for all published topics. |
 | `Dockerfile` | Docker image build file. Uses `python:3.12-slim`. Supports `DEBUG=1` env var for verbose logging. |
 | `entrypoint.sh` | Docker entrypoint script that checks `DEBUG` env var and runs `main.py` accordingly. |
 | `.dockerignore` | Excludes unnecessary files from Docker build context. |
@@ -52,17 +53,15 @@ All configuration lives in `config.yaml` (YAML format):
 
 ## MQTT topic structure
 
-Each inverter register value is published to its own topic under `{base_topic}/{metric_name}`. Examples:
+Each inverter register value is published to its own topic under `{base_topic}/{metric_name}`. SunSpec scale factors are applied automatically before publishing, so all numeric values are in real-world units. Scale factor topics (e.g. `*_scale`) are not published. Examples:
 
-- `solaredge/inverter/power_ac` — AC power output (raw register value)
-- `solaredge/inverter/power_ac_scale` — Scale factor for power_ac
-- `solaredge/inverter/temperature` — Inverter temperature
-- `solaredge/inverter/energy_total` — Lifetime energy production
+- `solaredge/inverter/power_ac` — AC power output in W (e.g. `1557.4`)
+- `solaredge/inverter/temperature` — Inverter temperature in °C (e.g. `35.01`)
+- `solaredge/inverter/energy_total` — Lifetime energy production in Wh
+- `solaredge/inverter/l1n_voltage` — L1-N voltage in V (e.g. `230.5`)
 - `solaredge/inverter/_timestamp` — ISO 8601 timestamp of the reading
 
 All values are published with the **retain** flag. Nested structures (meters, batteries) are flattened into sub-topic paths.
-
-**Note:** The values published are **raw register values** with separate scale factors (e.g. `power_ac=15574` with `power_ac_scale=-1` means 1557.4 W). Consumers must apply scaling themselves.
 
 ## Runtime behavior
 
@@ -71,7 +70,8 @@ All values are published with the **retain** flag. Nested structures (meters, ba
 3. Enters polling loop:
    - Creates a new Modbus TCP connection each poll
    - Reads all inverter registers via `inverter.read_all()`
-   - Publishes ~56 metrics to individual MQTT topics
+   - Applies SunSpec scale factors to convert raw values to real-world units
+   - Publishes ~44 metrics to individual MQTT topics (scale factor topics are excluded)
    - Sleeps until next interval
 4. On errors: exponential backoff (2^n seconds, max 60s)
 5. Graceful shutdown on SIGINT/SIGTERM
@@ -90,4 +90,3 @@ python main.py -c /path/to/other/config.yaml
 - **Add meter/battery support**: The `solaredge_modbus` library supports meters and batteries. Extend `read_inverter()` to call `inverter.meters()` / `inverter.batteries()` and read their registers. The `publish_values()` function already handles nested dicts.
 - **Change to JSON payload**: Modify `publish_values()` to publish a single JSON object to `base_topic` instead of individual topics.
 - **Add Home Assistant discovery**: Publish MQTT discovery messages to `homeassistant/sensor/solaredge_*/config` with appropriate device classes.
-- **Apply scale factors**: Create a post-processing step that multiplies raw values by their corresponding `*_scale` factors before publishing.
