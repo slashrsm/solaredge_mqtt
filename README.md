@@ -90,6 +90,38 @@ docker run -d --name solaredge-mqtt \
 docker logs -f solaredge-mqtt
 ```
 
+## Home Assistant integration
+
+An example Home Assistant configuration is provided in
+[`homeassistant.example.yaml`](homeassistant.example.yaml). It includes:
+
+- **Raw MQTT sensors** for every inverter register (current, voltage, power,
+  energy, temperature, status, power control, export control, etc.)
+- **Template sensors** that automatically apply scale factors to produce
+  real-world values (e.g. `power_ac × 10^power_ac_scale` → watts)
+- Human-readable `value_template` mappings for status and configuration
+  registers
+- All sensors grouped under a single **SolarEdge Inverter** device in HA
+
+The file is structured as a Home Assistant
+[package](https://www.home-assistant.io/docs/configuration/packages/), so
+you can include it directly without copying anything into
+`configuration.yaml`:
+
+```yaml
+# In your configuration.yaml
+homeassistant:
+  packages:
+    solaredge: !include solaredge.yaml
+```
+
+1. Copy `homeassistant.example.yaml` into your HA config directory
+   (e.g. as `solaredge.yaml`)
+2. Add the `packages:` lines above to your `configuration.yaml`
+3. If you changed `mqtt.base_topic` in `config.yaml`, update all
+   `state_topic` values in `solaredge.yaml` to match
+4. Restart Home Assistant
+
 ## Running as a service
 
 Create a systemd unit (Linux) or launchd plist (macOS) to keep the bridge
