@@ -1,8 +1,7 @@
-env/
-__pycache__/
-*.pyc
+target/
 config.yaml
 .git/
 .gitignore
 .clinerules
 README.md
+homeassistant.example.yaml

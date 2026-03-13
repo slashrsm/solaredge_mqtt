@@ -1,4 +1,2 @@
-env/
-__pycache__/
-*.pyc
+/target/
 config.yaml

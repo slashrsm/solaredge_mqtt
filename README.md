@@ -4,22 +4,20 @@ Polls a SolarEdge inverter via Modbus TCP and publishes each metric as an
 individual MQTT topic (e.g. `solaredge/inverter/power_ac`,
 `solaredge/inverter/temperature`, etc.).
 
+Written in Rust for minimal resource usage and fast startup.
+
 ## Quick start
 
 ```bash
-# 1. Create a virtual environment
-python3 -m venv env
-source env/bin/activate
+# 1. Build
+cargo build --release
 
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Copy and edit configuration
+# 2. Copy and edit configuration
 cp config.example.yaml config.yaml
 # Edit config.yaml with your values
 
-# 4. Run
-python main.py
+# 3. Run
+./target/release/solaredge_mqtt
 ```
 
 ## Configuration
@@ -67,7 +65,7 @@ is always available to new subscribers.
 ## Command-line options
 
 ```
-usage: main.py [-h] [-c CONFIG] [-v]
+usage: solaredge_mqtt [-h] [-c CONFIG] [-v]
 
   -c, --config CONFIG   Path to YAML config file (default: config.yaml)
   -v, --verbose         Enable debug logging
@@ -139,10 +137,26 @@ After=network.target
 Type=simple
 User=solaredge
 WorkingDirectory=/opt/solaredge_mqtt
-ExecStart=/opt/solaredge_mqtt/env/bin/python main.py
+ExecStart=/opt/solaredge_mqtt/solaredge_mqtt
 Restart=always
 RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
+```
+
+## Building from source
+
+Requires Rust 1.75+ (uses async/.await and modern edition 2021 features).
+
+```bash
+# Debug build
+cargo build
+
+# Release build (optimised, stripped)
+cargo build --release
+
+# Run directly
+cargo run -- -v
+cargo run -- -c /path/to/config.yaml
 ```

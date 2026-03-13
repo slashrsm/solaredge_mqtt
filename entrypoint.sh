@@ -1,6 +1,6 @@
 #!/bin/sh
 if [ "$DEBUG" = "1" ]; then
-    exec python main.py -v
+    exec ./solaredge_mqtt -v
 else
-    exec python main.py
+    exec ./solaredge_mqtt
 fi

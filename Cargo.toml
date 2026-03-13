@@ -1,0 +1,21 @@
+[package]
+name = "solaredge_mqtt"
+version = "0.1.0"
+edition = "2021"
+description = "SolarEdge Modbus → MQTT bridge"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+tokio-modbus = "0.15"
+rumqttc = "0.24"
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+chrono = { version = "0.4", features = ["clock"] }
+clap = { version = "4", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+anyhow = "1"
+
+[profile.release]
+strip = true
+lto = true
